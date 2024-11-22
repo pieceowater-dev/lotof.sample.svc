@@ -1,0 +1,44 @@
+  services:
+#    Uncomment this if you need Redis
+#    redis:
+#      image: redis:latest
+#      container_name: pieceoredis
+#      ports:
+#        - "6379:6379"
+#      networks:
+#        - pieceonetwork
+
+    postgres:
+      image: postgres:16
+      container_name: pieceopostgres
+      environment:
+        POSTGRES_USER: pieceouser
+        POSTGRES_PASSWORD: pieceopassword
+      volumes:
+        - pieceopgdata:/var/lib/postgresql/data
+      ports:
+        - "5432:5432"
+      networks:
+        - pieceonetwork
+
+    pgadmin:
+      image: dpage/pgadmin4:latest
+      container_name: pieceopgadmin
+      environment:
+        PGADMIN_DEFAULT_EMAIL: pcwt@pcwt.com
+        PGADMIN_DEFAULT_PASSWORD: pcwt
+      ports:
+        - "5431:80"
+      volumes:
+        - pieceopgadmindata:/var/lib/pgadmin
+      depends_on:
+        - postgres
+      networks:
+        - pieceonetwork
+
+  volumes:
+    pieceopgdata:
+    pieceopgadmindata:
+
+  networks:
+    pieceonetwork:
