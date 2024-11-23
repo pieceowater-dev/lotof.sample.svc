@@ -50,9 +50,9 @@ func NewPostgres(dsn string, enableLogs bool) *Postgres {
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetConnMaxLifetime(5 * time.Minute)
 
-	if err := db.AutoMigrate(&ent.Todo{}); err != nil {
-		log.Fatalf("Failed to migrate database: %v", err)
-	}
+	//if err := db.AutoMigrate(&ent.Todo{}); err != nil {
+	//	log.Fatalf("Failed to migrate database: %v", err)
+	//}
 
 	return &Postgres{DB: db}
 }

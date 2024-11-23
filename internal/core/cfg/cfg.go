@@ -1,6 +1,7 @@
 package cfg
 
 import (
+	"app/internal/pkg/todo/ent"
 	"fmt"
 	"github.com/joho/godotenv"
 	"os"
@@ -10,6 +11,7 @@ import (
 type Config struct {
 	AppPort             string
 	PostgresDatabaseDSN string
+	PostgresModels      []any
 }
 
 var (
@@ -27,6 +29,9 @@ func Inst() *Config {
 		instance = &Config{
 			AppPort:             getEnv("APP_PORT", "50051"),
 			PostgresDatabaseDSN: getEnv("POSTGRES_DB_DSN", "postgres://pieceouser:pieceopassword@localhost:5432/sample?sslmode=disable"),
+			PostgresModels: []any{
+				&ent.Todo{},
+			},
 		}
 	})
 	return instance

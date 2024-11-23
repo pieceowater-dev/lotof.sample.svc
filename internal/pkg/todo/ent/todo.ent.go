@@ -1,8 +1,6 @@
 package ent
 
-import (
-	"gorm.io/gorm"
-)
+import "gorm.io/gorm"
 
 type Todo struct {
 	gorm.Model

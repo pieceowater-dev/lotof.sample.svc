@@ -23,11 +23,10 @@ func New() *Module {
 	}
 
 	// Seed example data
-	//data := []ent.Todo{
+	//if err := database.SeedData([]ent.Todo{
 	//	{Text: "Learn Interfaces", Done: false},
 	//	{Text: "Implement Factory", Done: true},
-	//}
-	//if err := dbInstance.SeedData(data); err != nil {
+	//}); err != nil {
 	//	log.Fatalf("Failed to seed data: %v", err)
 	//}
 

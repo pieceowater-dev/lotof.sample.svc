@@ -18,12 +18,10 @@ COPY . .
 # Install tools for code generation
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-RUN go install github.com/99designs/gqlgen@latest
 
-# Generate gRPC and GraphQL code
+# Generate gRPC code
 RUN make grpc-update
 RUN make grpc-gen
-RUN make gql-gen
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -o app ./cmd/server/main.go
