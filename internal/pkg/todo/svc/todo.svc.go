@@ -1,24 +1,40 @@
 package svc
 
 import (
-	pb "app/internal/core/grpc/generated"
+	"app/internal/core/db"
+	"app/internal/core/grpc/generated"
+	"app/internal/pkg/todo/ent"
+	"fmt"
 	"log"
 )
 
 type TodoService struct {
+	db db.Database
 }
 
-func NewTodoService() *TodoService {
-	return &TodoService{}
+func NewTodoService(db db.Database) *TodoService {
+	return &TodoService{db: db}
 }
 
-// Mock Todo Data
-var todos = []*pb.Todo{
-	{Id: "1", Text: "Personal Todo", Category: pb.TodoCategoryEnum_PERSONAL, Done: false},
-	{Id: "2", Text: "Work Todo", Category: pb.TodoCategoryEnum_WORK, Done: true},
-}
+// GetTodos fetches all todos from the database
+func (s *TodoService) GetTodos() ([]*generated.Todo, error) {
+	log.Println("Fetching todos from database...")
 
-func (s *TodoService) GetTodos() ([]*pb.Todo, error) {
-	log.Println("Fetching todos...")
+	// Fetch todos using the database interface
+	var items []ent.Todo
+	if err := s.db.GetDB().Find(&items).Error; err != nil {
+		return nil, err
+	}
+
+	// Convert database records to gRPC-compatible responses
+	var todos []*generated.Todo
+	for _, item := range items {
+		todos = append(todos, &generated.Todo{
+			Id:   fmt.Sprintf("%d", item.ID),
+			Text: item.Text,
+			Done: item.Done,
+		})
+	}
+
 	return todos, nil
 }

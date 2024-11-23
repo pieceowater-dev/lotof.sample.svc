@@ -8,7 +8,8 @@ import (
 )
 
 type Config struct {
-	AppPort string
+	AppPort             string
+	PostgresDatabaseDSN string
 }
 
 var (
@@ -24,7 +25,8 @@ func Inst() *Config {
 		}
 
 		instance = &Config{
-			AppPort: getEnv("APP_PORT", "50051"),
+			AppPort:             getEnv("APP_PORT", "50051"),
+			PostgresDatabaseDSN: getEnv("POSTGRES_DB_DSN", "postgres://pieceouser:pieceopassword@localhost:5432/sample?sslmode=disable"),
 		}
 	})
 	return instance
