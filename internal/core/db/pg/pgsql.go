@@ -78,7 +78,7 @@ func (p *Postgres) WithTransaction(fn func(tx *gorm.DB) error) error {
 }
 
 // SeedData populates the database with dynamic initial data
-func (p *Postgres) SeedData(data interface{}) error {
+func (p *Postgres) SeedData(data any) error {
 	todos, ok := data.([]ent.Todo)
 	if !ok {
 		return fmt.Errorf("invalid data type, expected []ent.Todo")

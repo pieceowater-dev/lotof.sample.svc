@@ -10,7 +10,7 @@ import (
 type Database interface {
 	GetDB() *gorm.DB
 	WithTransaction(func(tx *gorm.DB) error) error
-	SeedData(data interface{}) error
+	SeedData(data any) error
 }
 
 // DatabaseType defines the type of databases supported
