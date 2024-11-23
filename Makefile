@@ -1,9 +1,6 @@
 APP_NAME = lotof.sample.svc
 BUILD_DIR = bin
 MAIN_FILE = cmd/server/main.go
-GOFMT = gofmt
-GO_TEST = go test
-GO_COVERAGE = $(GO_TEST) -cover
 PG_MIGRATION_DIR = internal/core/db/pg/migrations
 PROTOC = protoc
 PROTOC_GEN_GO = $(GOPATH)/bin/protoc-gen-go
@@ -17,7 +14,7 @@ DOCKER_COMPOSE = docker-compose
 
 export PATH := /usr/local/bin:$(PATH)
 
-.PHONY: all clean build run test update migration migrate db-sync setup install-flyway install-atlas install-postgres install-atlas-cli \
+.PHONY: all clean build run update migration migrate db-sync setup install-flyway install-atlas install-postgres install-atlas-cli \
         grpc-gen grpc-clean grpc-update compose-up compose-down gql-gen gql-clean
 
 # Setup the environment
