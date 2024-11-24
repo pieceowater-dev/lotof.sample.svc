@@ -5,11 +5,11 @@ go 1.23.0
 require (
 	ariga.io/atlas-provider-gorm v0.5.0
 	github.com/joho/godotenv v1.5.1
+	github.com/pieceowater-dev/lotof.sample.proto v0.0.9
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.34.2
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.12
-	github.com/pieceowater-dev/lotof.sample.proto v0.0.8
 )
 
 require (
