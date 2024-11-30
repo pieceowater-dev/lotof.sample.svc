@@ -25,7 +25,7 @@ func (r *Router) Init(grpcServer *grpc.Server) {
 // InitGRPC initializes gRPC routes
 func (r *Router) InitGRPC(grpcServer *grpc.Server) {
 	// Register gRPC services
-	// pb.RegisterUserServiceServer(grpcServer, r.userModule.Controller)
+	pb.RegisterTodoServiceServer(grpcServer, r.todoModule.Controller)
 }
 
 // InitREST initializes REST routes using Gin

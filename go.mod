@@ -7,7 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/joho/godotenv v1.5.1
 	github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.3
-	github.com/pieceowater-dev/lotof.sample.proto v0.0.9
+	github.com/pieceowater-dev/lotof.sample.proto v0.0.12
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.2
 	gorm.io/gorm v1.25.12
