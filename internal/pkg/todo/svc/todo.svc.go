@@ -1,18 +1,18 @@
 package svc
 
 import (
-	"app/internal/core/db"
 	"app/internal/core/grpc/generated"
 	"app/internal/pkg/todo/ent"
 	"fmt"
+	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 	"log"
 )
 
 type TodoService struct {
-	db db.Database
+	db gossiper.Database
 }
 
-func NewTodoService(db db.Database) *TodoService {
+func NewTodoService(db gossiper.Database) *TodoService {
 	return &TodoService{db: db}
 }
 

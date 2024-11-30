@@ -6,7 +6,7 @@ env "postgres" {
   src = data.external_schema.postgres.url
   dev = "docker://postgres/16/dev"
   migration {
-    dir = "file://internal/core/db/pg/migrations"
+    dir = "file://cmd/server/db/pg/migrations"
   }
 
   format {

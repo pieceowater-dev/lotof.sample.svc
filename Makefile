@@ -1,7 +1,7 @@
 APP_NAME = lotof.sample.svc
 BUILD_DIR = bin
 MAIN_FILE = cmd/server/main.go
-PG_MIGRATION_DIR = internal/core/db/pg/migrations
+PG_MIGRATION_DIR = cmd/server/db/pg/migrations
 PROTOC = protoc
 PROTOC_GEN_GO = $(GOPATH)/bin/protoc-gen-go
 PROTOC_GEN_GRPC_GO = $(GOPATH)/bin/protoc-gen-go-grpc

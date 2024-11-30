@@ -1,7 +1,6 @@
 package cfg
 
 import (
-	"app/internal/pkg/todo/ent"
 	"fmt"
 	"github.com/joho/godotenv"
 	"os"
@@ -9,7 +8,8 @@ import (
 )
 
 type Config struct {
-	AppPort             string
+	GrpcPort            string
+	RestPort            string
 	PostgresDatabaseDSN string
 	PostgresModels      []any
 }
@@ -27,10 +27,12 @@ func Inst() *Config {
 		}
 
 		instance = &Config{
-			AppPort:             getEnv("APP_PORT", "50051"),
+			GrpcPort:            getEnv("GRPC_PORT", "50051"),
+			RestPort:            getEnv("REST_PORT", "3000"),
 			PostgresDatabaseDSN: getEnv("POSTGRES_DB_DSN", "postgres://pieceouser:pieceopassword@localhost:5432/sample?sslmode=disable"),
-			PostgresModels: []any{
-				&ent.Todo{},
+			PostgresModels:      []any{
+				// models to migration here:
+				// &ent.MyModel{},
 			},
 		}
 	})

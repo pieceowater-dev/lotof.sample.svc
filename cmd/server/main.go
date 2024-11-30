@@ -3,27 +3,19 @@ package main
 import (
 	"app/internal/core/cfg"
 	"app/internal/pkg"
+	"github.com/gin-gonic/gin"
+	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 	"google.golang.org/grpc"
-	"log"
-	"net"
 )
 
 func main() {
 	appCfg := cfg.Inst()
+	appRouter := pkg.NewRouter()
 
-	// Start gRPC server
-	listener, err := net.Listen("tcp", ":"+appCfg.AppPort)
-	if err != nil {
-		log.Fatalf("Failed to listen: %v", err)
-	}
-	grpcServer := grpc.NewServer()
+	serverManager := gossiper.NewServerManager()
+	serverManager.AddServer(gossiper.NewGRPCServ(appCfg.GrpcPort, grpc.NewServer(), appRouter.InitGRPC))
+	serverManager.AddServer(gossiper.NewRESTServ(appCfg.RestPort, gin.Default(), appRouter.InitREST))
 
-	// Initialize and register routes
-	router := pkg.NewRouter()
-	router.Init(grpcServer)
-
-	log.Printf("gRPC server is running on port %s...\n", appCfg.AppPort)
-	if err := grpcServer.Serve(listener); err != nil {
-		log.Fatalf("Failed to serve: %v", err)
-	}
+	serverManager.StartAll()
+	defer serverManager.StopAll()
 }
