@@ -1,38 +1,42 @@
 package pkg
 
 import (
-	pb "app/internal/core/grpc/generated"
-	"app/internal/pkg/todo"
-	"github.com/gin-gonic/gin"
+	"app/internal/core/generic/interfaces"
+	pb "app/internal/core/grpc/generated/lotof.sample.proto/lotof.sample.svc/domainItem"
+	"app/internal/pkg/domainItem"
 	"google.golang.org/grpc"
 )
 
 type Router struct {
-	todoModule *todo.Module
+	modules map[string]interfaces.IModule // Map of module names to their instances.
+
+	server *grpc.Server
 }
 
-func NewRouter() *Router {
+// NewRouter creates a new Router instance and initializes the DomainItem module.
+func NewRouter(server *grpc.Server) *Router {
+	domainItemModule := domainItem.New()
+
 	return &Router{
-		todoModule: todo.New(),
+		server: server,
+		modules: map[string]interfaces.IModule{
+			domainItemModule.Name(): domainItemModule,
+		},
 	}
 }
 
-func (r *Router) Init(grpcServer *grpc.Server) {
-	// Register gRPC services
-	pb.RegisterTodoServiceServer(grpcServer, r.todoModule.Controller)
+// InitializeRouter initializes the router and its gRPC routes.
+func (r *Router) InitializeRouter() (any, error) {
+	r.InitializeGRPCRoutes(r.server)
+	return nil, nil
 }
 
-// InitGRPC initializes gRPC routes
-func (r *Router) InitGRPC(grpcServer *grpc.Server) {
-	// Register gRPC services
-	pb.RegisterTodoServiceServer(grpcServer, r.todoModule.Controller)
+// InitializeGRPCRoutes registers the gRPC routes for the modules.
+func (r *Router) InitializeGRPCRoutes(grpcServer *grpc.Server) {
+	pb.RegisterDomainItemServiceServer(grpcServer, r.modules["DomainItem"].(*domainItem.Module).API)
 }
 
-// InitREST initializes REST routes using Gin
-func (r *Router) InitREST(router *gin.Engine) {
-	//api := router.Group("/api")
-	{
-		// Register GIN routes
-		//api.GET("/todos", r.todoModule.Controller.ListREST)
-	}
+// GetModules returns the map of modules.
+func (r *Router) GetModules() map[string]interfaces.IModule {
+	return r.modules
 }

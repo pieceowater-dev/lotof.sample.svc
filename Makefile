@@ -1,7 +1,9 @@
+# Application name and build directory
 APP_NAME = lotof.sample.svc
 BUILD_DIR = bin
 MAIN_FILE = cmd/server/main.go
-PG_MIGRATION_DIR = cmd/server/db/pg/migrations
+
+# Protobuf compiler and plugins
 PROTOC = protoc
 PROTOC_GEN_GO = $(GOPATH)/bin/protoc-gen-go
 PROTOC_GEN_GRPC_GO = $(GOPATH)/bin/protoc-gen-go-grpc
@@ -9,13 +11,16 @@ PROTOC_PKG = github.com/pieceowater-dev/lotof.sample.proto
 PROTOC_PKG_PATH = $(shell go list -m -f '{{.Dir}}' $(PROTOC_PKG))
 PROTOC_DIR = protos
 PROTOC_OUT_DIR = ./internal/core/grpc/generated
+
 PG_DB_DSN = $(shell grep POSTGRES_DB_DSN .env | cut -d '"' -f2)
+PG_MIGRATION_DIR = cmd/server/db/pg/migrations
+
+# Docker Compose tool
 DOCKER_COMPOSE = docker-compose
 
 export PATH := /usr/local/bin:$(PATH)
 
-.PHONY: all clean build run update migration migrate db-sync setup install-flyway install-atlas install-postgres install-atlas-cli \
-        grpc-gen grpc-clean grpc-update compose-up compose-down gql-gen gql-clean
+.PHONY: all clean build run update grpc-gen grpc-clean grpc-update compose-up compose-down install-atlas-cli
 
 # Setup the environment
 setup: install-atlas-cli grpc-update
@@ -23,9 +28,9 @@ setup: install-atlas-cli grpc-update
 	go mod tidy
 
 # Default build target
-all: build
+all: build grpc-gen
 
-# Update dependencies
+# Update Go module dependencies
 update:
 	go mod tidy
 
@@ -40,7 +45,8 @@ run: build
 
 # Clean build artifacts
 clean:
-	rm -rf $(BUILD_DIR) gql-clean grpc-clean
+	rm -rf $(BUILD_DIR) grpc-clean
+
 
 # Install Atlas CLI
 install-atlas-cli:
@@ -57,10 +63,7 @@ pg-migration:
 pg-migrate:
 	@PATH=/usr/local/bin:$$PATH atlas migrate apply --url "$(PG_DB_DSN)" --dir="file://$(shell pwd)/$(PG_MIGRATION_DIR)"
 
-# Sync migrations: generate and apply them
-db-sync: pg-migration pg-migrate
-
-# gRPC code generation
+# gRPC code generation from proto files
 grpc-gen:
 	@echo "Generating gRPC code from proto files..."
 	mkdir -p $(PROTOC_OUT_DIR)
@@ -76,9 +79,10 @@ grpc-clean:
 
 # Update gRPC dependencies
 grpc-update:
+	go clean -modcache
 	go get -u $(PROTOC_PKG)@latest
 
-# Docker build target
+# Build Docker image
 build-docker:
 	docker build -t $(APP_NAME) .
 
@@ -86,8 +90,7 @@ build-docker:
 build-and-run-docker: build-docker
 	docker stop $(APP_NAME)
 	docker rm $(APP_NAME)
-	docker run -d -p 50051:50051 \
-		-e POSTGRES_DB_DSN="$(PG_DB_DSN)" \
+	docker run -d -p 8080:8080 \
 		--network lotofsamplesvc_pieceonetwork \
 		--name $(APP_NAME) \
 		$(APP_NAME)
