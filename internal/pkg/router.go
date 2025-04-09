@@ -4,21 +4,24 @@ import (
 	"app/internal/core/generic/interfaces"
 	pb "app/internal/core/grpc/generated/lotof.sample.proto/lotof.sample.svc/domainItem"
 	"app/internal/pkg/domainItem"
+
+	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 	"google.golang.org/grpc"
 )
 
 type Router struct {
+	server  *grpc.Server
+	db      gossiper.Database
 	modules map[string]interfaces.IModule // Map of module names to their instances.
-
-	server *grpc.Server
 }
 
 // NewRouter creates a new Router instance and initializes the DomainItem module.
-func NewRouter(server *grpc.Server) *Router {
-	domainItemModule := domainItem.New()
+func NewRouter(server *grpc.Server, db gossiper.Database) *Router {
+	domainItemModule := domainItem.New(db)
 
 	return &Router{
 		server: server,
+		db:     db,
 		modules: map[string]interfaces.IModule{
 			domainItemModule.Name(): domainItemModule,
 		},

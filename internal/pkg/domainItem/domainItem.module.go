@@ -1,11 +1,10 @@
 package domainItem
 
 import (
-	"app/internal/core/cfg"
 	"app/internal/pkg/domainItem/ctrl"
 	"app/internal/pkg/domainItem/svc"
+
 	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
-	"log"
 )
 
 type Module struct {
@@ -15,20 +14,9 @@ type Module struct {
 }
 
 // New creates a new instance of the DomainItem module.
-func New() *Module {
-	// Create database instance
-	database, err := gossiper.NewDB(
-		gossiper.PostgresDB,
-		cfg.Inst().PostgresDatabaseDSN,
-		false,
-		[]any{},
-	)
-	if err != nil {
-		log.Fatalf("Failed to create database instance: %v", err)
-	}
-
+func New(db gossiper.Database) *Module {
 	// Create service and controller
-	service := svc.NewDomainItemService(database)
+	service := svc.NewDomainItemService(db)
 	controller := ctrl.NewDomainItemController(service)
 
 	// Initialize and return the module

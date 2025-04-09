@@ -1,35 +1,30 @@
 package main
 
 import (
-	"app/internal/core/cfg"
-	"app/internal/pkg"
-	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+	"app/internal"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
-	// Load application configuration
-	appCfg := cfg.Inst()
+	application := internal.NewApp()
 
-	// Create a new gRPC server
-	grpcServ := grpc.NewServer()
+	// Start the application in a separate goroutine.
+	go func() {
+		application.Start()
+	}()
+	log.Println("Application started successfully")
 
-	// Create a new application router
-	appRouter := pkg.NewRouter(grpcServ)
+	// Handle OS signals for graceful shutdown.
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
 
-	// Register reflection service on gRPC server
-	reflection.Register(grpcServ)
+	<-signalChan
+	log.Println("Received shutdown signal")
 
-	// Create a new server manager
-	serverManager := gossiper.NewServerManager()
-
-	// Add the gRPC server to the server manager
-	serverManager.AddServer(gossiper.NewGRPCServ(appCfg.GrpcPort, grpcServ, appRouter.InitializeGRPCRoutes))
-
-	// Start all servers managed by the server manager
-	serverManager.StartAll()
-
-	// Ensure all servers are stopped when the main function exits
-	defer serverManager.StopAll()
+	// Stop the application gracefully.
+	application.Stop()
+	log.Println("Application stopped successfully")
 }
