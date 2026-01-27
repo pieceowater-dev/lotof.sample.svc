@@ -1,11 +1,12 @@
 package ctrl
 
 import (
-	pb "app/internal/core/grpc/generated/lotof.sample.proto/lotof.sample.svc/domainItem"
-	"app/internal/pkg/domainItem/svc"
 	"context"
 	"fmt"
 	"strconv"
+
+	pb "app/internal/core/grpc/generated/lotof.sample.svc/domainItem"
+	"app/internal/pkg/domainItem/svc"
 )
 
 type DomainItemController struct {
