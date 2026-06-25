@@ -74,6 +74,7 @@ func Init(ctx context.Context, cfg Config) (*slog.Logger, trace.Tracer, func(con
     logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: cfg.LogLevel, AddSource: true})).
         With("service", cfg.ServiceName, "environment", cfg.Environment)
 
+    slog.SetDefault(logger)
     shutdown := func(ctx context.Context) error { return tp.Shutdown(ctx) }
     return logger, tp.Tracer(cfg.ServiceName), shutdown, nil
 }
