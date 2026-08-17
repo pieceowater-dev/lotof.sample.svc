@@ -1,16 +1,30 @@
 package ent
 
-import "gorm.io/gorm"
+import (
+	"app/internal/core/generic/entbase"
 
-type SomeEnum int
-
-const (
-	HELLO SomeEnum = iota
-	WORLD
+	"github.com/google/uuid"
 )
 
-type Something struct {
-	gorm.Model
-	ID       int      `json:"id" gorm:"primaryKey;autoIncrement"`
-	SomeEnum SomeEnum `json:"someEnum"`
+type Status int
+
+const (
+	Active Status = iota
+	Archived
+)
+
+// DomainItem is the template's example entity -- delete/rename this whole
+// module (ent/repo/svc/ctrl + the proto service it implements) when
+// bootstrapping a real domain, and copy its shape for your first real
+// entity in the meantime.
+type DomainItem struct {
+	ID     uuid.UUID `gorm:"type:uuid;primaryKey"`
+	Name   string    `gorm:"type:varchar(256);not null"`
+	Status Status    `gorm:"not null;default:0"`
+
+	entbase.Timestamps
+}
+
+func (DomainItem) TableName() string {
+	return "domain_items"
 }

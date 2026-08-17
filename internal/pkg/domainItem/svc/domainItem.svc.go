@@ -1,30 +1,38 @@
 package svc
 
 import (
-	"app/internal/pkg/domainItem/ent"
 	"context"
-	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
-	"log"
+
+	"github.com/google/uuid"
+
+	"app/internal/pkg/domainItem/ent"
+	"app/internal/pkg/domainItem/repo"
 )
 
 type DomainItemService struct {
-	db gossiper.Database
+	repo repo.DomainItemRepository
 }
 
-// NewDomainItemService creates a new DomainItemService instance.
-func NewDomainItemService(db gossiper.Database) *DomainItemService {
-	return &DomainItemService{db: db}
+func NewDomainItemService(repo repo.DomainItemRepository) *DomainItemService {
+	return &DomainItemService{repo: repo}
 }
 
-// GetSomethings fetches somethings from the database filtered by ID.
-func (s *DomainItemService) GetSomethings(ctx context.Context, id int) ([]ent.Something, error) {
-	log.Println("Fetching somethings from database...")
+func (s *DomainItemService) CreateDomainItem(ctx context.Context, item *ent.DomainItem) error {
+	return s.repo.CreateDomainItem(ctx, item)
+}
 
-	// Fetch somethings using the database interface filtered by ID
-	var items []ent.Something
-	if err := s.db.GetDB().WithContext(ctx).Where("id = ?", id).Find(&items).Error; err != nil {
-		return nil, err
-	}
+func (s *DomainItemService) GetDomainItem(ctx context.Context, id uuid.UUID) (*ent.DomainItem, error) {
+	return s.repo.GetDomainItem(ctx, id)
+}
 
-	return items, nil
+func (s *DomainItemService) ListDomainItems(ctx context.Context, limit, offset int) ([]*ent.DomainItem, int64, error) {
+	return s.repo.ListDomainItems(ctx, limit, offset)
+}
+
+func (s *DomainItemService) UpdateDomainItem(ctx context.Context, item *ent.DomainItem) error {
+	return s.repo.UpdateDomainItem(ctx, item)
+}
+
+func (s *DomainItemService) DeleteDomainItem(ctx context.Context, id uuid.UUID) error {
+	return s.repo.DeleteDomainItem(ctx, id)
 }

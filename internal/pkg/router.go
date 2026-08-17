@@ -6,7 +6,9 @@ import (
 	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 
 	"app/internal/core/generic/interfaces"
+	tenantspb "app/internal/core/grpc/generated/generic/tenants"
 	pb "app/internal/core/grpc/generated/lotof.sample.svc/domainItem"
+	tenant "app/internal/pkg/_tenant"
 	"app/internal/pkg/domainItem"
 )
 
@@ -16,15 +18,17 @@ type Router struct {
 	server  *grpc.Server
 }
 
-// NewRouter creates a new Router instance and initializes the DomainItem module.
+// NewRouter creates a new Router instance and initializes every module.
 func NewRouter(server *grpc.Server, db gossiper.Database) *Router {
 	domainItemModule := domainItem.New(db)
+	tenantModule := tenant.New()
 
 	return &Router{
 		server: server,
 		db:     db,
 		modules: map[string]interfaces.IModule{
 			domainItemModule.Name(): domainItemModule,
+			tenantModule.Name():     tenantModule,
 		},
 	}
 }
@@ -37,7 +41,8 @@ func (r *Router) InitializeRouter() (any, error) {
 
 // InitializeGRPCRoutes registers the gRPC routes for the modules.
 func (r *Router) InitializeGRPCRoutes(grpcServer *grpc.Server) {
-	pb.RegisterDomainItemServiceServer(grpcServer, r.modules["DomainItem"].(*domainItem.Module).API)
+	pb.RegisterSampleDomainItemServiceServer(grpcServer, r.modules["DomainItem"].(*domainItem.Module).API)
+	tenantspb.RegisterAppTenantsServiceServer(grpcServer, r.modules["tenant"].(*tenant.Module).API)
 }
 
 // GetModules returns the map of modules.
