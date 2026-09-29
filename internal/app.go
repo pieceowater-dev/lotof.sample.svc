@@ -10,6 +10,7 @@ import (
 
 	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthgrpc "google.golang.org/grpc/health/grpc_health_v1"
@@ -51,7 +52,7 @@ func NewApp() *App {
 	if err != nil {
 		log.Printf("observability init failed: %v", err)
 		obsLogger = slog.Default()
-		tracer = trace.NewNoopTracerProvider().Tracer("noop")
+		tracer = noop.NewTracerProvider().Tracer("noop")
 		shutdown = func(context.Context) error { return nil }
 	}
 
