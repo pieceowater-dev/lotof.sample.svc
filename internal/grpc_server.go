@@ -29,7 +29,7 @@ func newGRPCServer(c *cfg.Config, db gossiper.Database, logger *slog.Logger, tra
 	}
 
 	metadataMiddleware := middleware.NewMetadataMiddleware(excludedMethods)
-	tenantReadinessMiddleware := middleware.NewTenantReadinessMiddleware(c, db, excludedMethods)
+	tenantReadinessMiddleware := c.Tenants().Readiness(db, excludedMethods)
 
 	return gossiper.NewGRPCServer(
 		// Service-to-service auth: only callers holding SERVICE_AUTH_SECRET (this

@@ -2,12 +2,11 @@ package cfg
 
 import (
 	"fmt"
-	"net/url"
-	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"sync"
+
+	"github.com/pieceowater-dev/lotof.lib.gossiper/v2/appkit"
 
 	"github.com/joho/godotenv"
 	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
@@ -50,24 +49,24 @@ func Inst() *Config {
 		loadDotEnv()
 
 		instance = &Config{
-			AppBundleName:       getEnv("APP_BUNDLE_NAME", "pieceowater.sample"),
-			ServiceName:         getEnv("SERVICE_NAME", "lotof.sample.svc"),
-			GrpcPort:            getEnv("GRPC_PORT", "50051"),
-			HubApplicationAddr:  getEnv("HUB_APPLICATION_ADDR", "localhost:50050"),
+			AppBundleName:       appkit.Env("APP_BUNDLE_NAME", "pieceowater.sample"),
+			ServiceName:         appkit.Env("SERVICE_NAME", "lotof.sample.svc"),
+			GrpcPort:            appkit.Env("GRPC_PORT", "50051"),
+			HubApplicationAddr:  appkit.Env("HUB_APPLICATION_ADDR", "localhost:50050"),
 			AppBundleSecret:     gossiper.SecretEnv("APP_BUNDLE_SECRET"),
-			PostgresDatabaseDSN: normalizePostgresDSN(gossiper.SecretEnv("POSTGRES_DB_DSN")),
+			PostgresDatabaseDSN: appkit.NormalizePostgresDSN(gossiper.SecretEnv("POSTGRES_DB_DSN")),
 			PostgresModels:      []any{},
-			DebugSQL:            getEnv("DEBUG_SQL", "false") == "true",
+			DebugSQL:            appkit.Env("DEBUG_SQL", "false") == "true",
 			// Empty by default: the effective target version is auto-computed
 			// from the AutoMigrate model set (see EffectiveMigrationTargetVersion
 			// in tenant_migration_version.go). Set only as an emergency override.
-			TenantMigrationTargetVersion: getEnv("TENANT_MIGRATION_TARGET_VERSION", ""),
-			Environment:                  getEnv("ENVIRONMENT", "local"),
-			OtlpEndpoint:                 getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
-			TraceSampleRatio:             getEnvFloat("TRACE_SAMPLE_RATIO", 1.0),
-			LogLevel:                     getEnv("LOG_LEVEL", "info"),
-			ServiceAuthSecret:            getEnv("SERVICE_AUTH_SECRET", ""),
-			ServiceAuthMode:              getEnv("SERVICE_AUTH_MODE", gossiper.ServiceAuthEnforce),
+			TenantMigrationTargetVersion: appkit.Env("TENANT_MIGRATION_TARGET_VERSION", ""),
+			Environment:                  appkit.Env("ENVIRONMENT", "local"),
+			OtlpEndpoint:                 appkit.Env("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
+			TraceSampleRatio:             appkit.EnvFloat("TRACE_SAMPLE_RATIO", 1.0),
+			LogLevel:                     appkit.Env("LOG_LEVEL", "info"),
+			ServiceAuthSecret:            appkit.Env("SERVICE_AUTH_SECRET", ""),
+			ServiceAuthMode:              appkit.Env("SERVICE_AUTH_MODE", gossiper.ServiceAuthEnforce),
 		}
 	})
 	return instance
@@ -90,45 +89,4 @@ func loadDotEnv() {
 	if err := godotenv.Load(dotEnvPath); err != nil {
 		fmt.Println("No .env file found, loading from OS environment variables.")
 	}
-}
-
-// getEnv retrieves the value of the environment variable named by the key.
-// It returns the value, or the specified default value if the variable is not present.
-func getEnv(key, defaultValue string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-	return defaultValue
-}
-
-func getEnvFloat(key string, defaultValue float64) float64 {
-	if value, exists := os.LookupEnv(key); exists {
-		if parsed, err := strconv.ParseFloat(value, 64); err == nil {
-			return parsed
-		}
-	}
-	return defaultValue
-}
-
-func normalizePostgresDSN(raw string) string {
-	if raw == "" {
-		return raw
-	}
-
-	parsed, err := url.Parse(raw)
-	if err != nil {
-		return raw
-	}
-
-	query := parsed.Query()
-	if query.Get("statement_cache_capacity") == "" {
-		query.Set("statement_cache_capacity", "0")
-	}
-
-	if query.Get("default_query_exec_mode") == "" {
-		query.Set("default_query_exec_mode", "simple_protocol")
-	}
-
-	parsed.RawQuery = query.Encode()
-	return parsed.String()
 }

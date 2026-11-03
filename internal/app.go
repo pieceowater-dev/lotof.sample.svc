@@ -41,7 +41,7 @@ func NewApp() *App {
 		Environment:  cfg.Inst().Environment,
 		OtlpEndpoint: cfg.Inst().OtlpEndpoint,
 		SampleRatio:  cfg.Inst().TraceSampleRatio,
-		LogLevel:     parseLevel(cfg.Inst().LogLevel),
+		LogLevel:     observability.ParseLevel(cfg.Inst().LogLevel),
 	})
 	if err != nil {
 		log.Printf("observability init failed: %v", err)
@@ -89,8 +89,8 @@ func (a *App) Start() {
 	// "" above is plain liveness; the named "readiness" service follows the
 	// database, for readiness probes (see gossiper.WatchReadiness).
 	go gossiper.WatchReadiness(a.ctx, grpcHealth, 10*time.Second, gossiper.PingDatabase(a.db))
-	a.startTenantWarmupLoop()
-	a.cfg.TriggerTenantWarmupAsync()
+	a.warmupCancel = a.cfg.Tenants().StartWarmupLoop()
+	a.cfg.Tenants().TriggerWarmupAsync()
 
 	a.servers.StartAll()
 	defer a.servers.StopAll()
