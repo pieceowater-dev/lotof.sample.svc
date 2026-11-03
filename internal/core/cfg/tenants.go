@@ -127,7 +127,7 @@ func (cfg *Config) ConfigTenants() {
 						return fmt.Errorf("auto-migrate failed for namespace '%s', model '%T': %w", namespace, model, err)
 					}
 				}
-				return nil
+				return ApplyRawTenantMigrations(tx)
 			})
 		})
 		if err != nil {

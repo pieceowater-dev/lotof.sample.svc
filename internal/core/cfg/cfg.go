@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/joho/godotenv"
+	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
 )
 
 // Config holds the configuration settings for the application.
@@ -31,6 +31,12 @@ type Config struct {
 	OtlpEndpoint     string
 	TraceSampleRatio float64
 	LogLevel         string
+	// ServiceAuthSecret is the shared service-to-service token (SERVICE_AUTH_SECRET);
+	// empty disables the check in development only.
+	ServiceAuthSecret string
+	// ServiceAuthMode is "enforce" (default) or "report" (log calls without a
+	// valid token but let them through) -- see gossiper.ServiceAuthServerInterceptorWithMode.
+	ServiceAuthMode string
 }
 
 var (
@@ -48,8 +54,8 @@ func Inst() *Config {
 			ServiceName:         getEnv("SERVICE_NAME", "lotof.sample.svc"),
 			GrpcPort:            getEnv("GRPC_PORT", "50051"),
 			HubApplicationAddr:  getEnv("HUB_APPLICATION_ADDR", "localhost:50050"),
-			AppBundleSecret:     secretEnv("APP_BUNDLE_SECRET"),
-			PostgresDatabaseDSN: normalizePostgresDSN(secretEnv("POSTGRES_DB_DSN")),
+			AppBundleSecret:     gossiper.SecretEnv("APP_BUNDLE_SECRET"),
+			PostgresDatabaseDSN: normalizePostgresDSN(gossiper.SecretEnv("POSTGRES_DB_DSN")),
 			PostgresModels:      []any{},
 			DebugSQL:            getEnv("DEBUG_SQL", "false") == "true",
 			// Empty by default: the effective target version is auto-computed
@@ -57,9 +63,11 @@ func Inst() *Config {
 			// in tenant_migration_version.go). Set only as an emergency override.
 			TenantMigrationTargetVersion: getEnv("TENANT_MIGRATION_TARGET_VERSION", ""),
 			Environment:                  getEnv("ENVIRONMENT", "local"),
-			OtlpEndpoint:                 getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://tempo:4318"),
+			OtlpEndpoint:                 getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
 			TraceSampleRatio:             getEnvFloat("TRACE_SAMPLE_RATIO", 1.0),
 			LogLevel:                     getEnv("LOG_LEVEL", "info"),
+			ServiceAuthSecret:            getEnv("SERVICE_AUTH_SECRET", ""),
+			ServiceAuthMode:              getEnv("SERVICE_AUTH_MODE", gossiper.ServiceAuthEnforce),
 		}
 	})
 	return instance
@@ -123,20 +131,4 @@ func normalizePostgresDSN(raw string) string {
 
 	parsed.RawQuery = query.Encode()
 	return parsed.String()
-}
-
-// secretEnv reads a secret without any compiled-in fallback. An empty value is
-// accepted only in development; elsewhere the service stops, naming the
-// variable (never its value).
-func secretEnv(key string) string {
-	value := os.Getenv(key)
-	if value == "" {
-		switch strings.ToLower(strings.TrimSpace(os.Getenv("ENVIRONMENT"))) {
-		case "", "dev", "development", "local", "test":
-		default:
-			fmt.Fprintf(os.Stderr, "refusing to start: required secret %s is not set\n", key)
-			os.Exit(1)
-		}
-	}
-	return value
 }

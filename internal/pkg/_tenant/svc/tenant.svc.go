@@ -3,9 +3,9 @@ package svc
 import (
 	"app/internal/core/cfg"
 	"app/internal/core/grpc/generated/generic/tenants"
-	"app/internal/core/observability"
 	"context"
 	"fmt"
+	"github.com/pieceowater-dev/lotof.lib.gossiper/v2/observability"
 	"log/slog"
 
 	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"

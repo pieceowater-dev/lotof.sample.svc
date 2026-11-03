@@ -4,21 +4,15 @@ import (
 	"context"
 	"log"
 	"log/slog"
-	"os"
-	"strings"
 	"time"
 
 	gossiper "github.com/pieceowater-dev/lotof.lib.gossiper/v2"
+	"github.com/pieceowater-dev/lotof.lib.gossiper/v2/observability"
 	"go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/otel/trace/noop"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/health"
 	healthgrpc "google.golang.org/grpc/health/grpc_health_v1"
-	"google.golang.org/grpc/reflection"
 
 	"app/internal/core/cfg"
-	"app/internal/core/generic/middleware"
-	"app/internal/core/observability"
 	"app/internal/pkg"
 	domainItemEnt "app/internal/pkg/domainItem/ent"
 )
@@ -87,35 +81,14 @@ func NewApp() *App {
 }
 
 func (a *App) Start() {
-	excludedMethods := []string{
-		"/tenants.AppTenantsService/NewTenant",
-		// GetTenantStatus reports readiness (including "not ready") -- gating
-		// it behind tenantReadinessMiddleware would make it hang/retry
-		// instead of ever answering for a genuinely broken tenant.
-		"/tenants.AppTenantsService/GetTenantStatus",
-		"/grpc.health.v1.Health/Check",
-	}
-
-	metadataMiddleware := middleware.NewMetadataMiddleware(excludedMethods)
-	tenantReadinessMiddleware := middleware.NewTenantReadinessMiddleware(a.cfg, a.db, excludedMethods)
-
-	grpcServer := grpc.NewServer(
-		grpc.ChainUnaryInterceptor(
-			gossiper.RecoveryUnaryServerInterceptor(),
-			metadataMiddleware.MiddlewareMethod(),
-			tenantReadinessMiddleware.MiddlewareMethod(),
-			observability.GRPCServerInterceptor(a.logger, a.tracer),
-		),
-	)
-	grpcHealth := health.NewServer()
-	healthgrpc.RegisterHealthServer(grpcServer, grpcHealth)
-	grpcHealth.SetServingStatus("", healthgrpc.HealthCheckResponse_NOT_SERVING)
-
+	grpcServer, grpcHealth := newGRPCServer(a.cfg, a.db, a.logger, a.tracer)
 	appRouter := pkg.NewRouter(grpcServer, a.db)
-	reflection.Register(grpcServer)
 
 	a.servers.AddServer(gossiper.NewGRPCServ(a.cfg.GrpcPort, grpcServer, appRouter.InitializeGRPCRoutes))
 	grpcHealth.SetServingStatus("", healthgrpc.HealthCheckResponse_SERVING)
+	// "" above is plain liveness; the named "readiness" service follows the
+	// database, for readiness probes (see gossiper.WatchReadiness).
+	go gossiper.WatchReadiness(a.ctx, grpcHealth, 10*time.Second, gossiper.PingDatabase(a.db))
 	a.startTenantWarmupLoop()
 	a.cfg.TriggerTenantWarmupAsync()
 
@@ -135,47 +108,4 @@ func (a *App) Stop() {
 		_ = a.shutdown(ctx)
 	}
 	a.servers.StopAll()
-}
-
-// startTenantWarmupLoop periodically re-discovers namespaces registered for
-// this app and re-provisions/re-migrates any that changed -- a namespace
-// added to this app after startup, or a schema change deployed while a
-// tenant's process was already up, still gets picked up without a restart.
-func (a *App) startTenantWarmupLoop() {
-	interval := 10 * time.Minute
-	if raw := os.Getenv("TENANT_MIGRATION_POLL_INTERVAL"); raw != "" {
-		if parsed, err := time.ParseDuration(raw); err == nil && parsed > 0 {
-			interval = parsed
-		}
-	}
-
-	loopCtx, cancel := context.WithCancel(context.Background())
-	a.warmupCancel = cancel
-
-	go func() {
-		ticker := time.NewTicker(interval)
-		defer ticker.Stop()
-
-		for {
-			select {
-			case <-ticker.C:
-				a.cfg.TriggerTenantWarmupAsync()
-			case <-loopCtx.Done():
-				return
-			}
-		}
-	}()
-}
-
-func parseLevel(level string) slog.Level {
-	switch strings.ToLower(level) {
-	case "debug":
-		return slog.LevelDebug
-	case "warn", "warning":
-		return slog.LevelWarn
-	case "error":
-		return slog.LevelError
-	default:
-		return slog.LevelInfo
-	}
 }
