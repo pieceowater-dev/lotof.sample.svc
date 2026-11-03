@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/joho/godotenv"
@@ -47,8 +48,8 @@ func Inst() *Config {
 			ServiceName:         getEnv("SERVICE_NAME", "lotof.sample.svc"),
 			GrpcPort:            getEnv("GRPC_PORT", "50051"),
 			HubApplicationAddr:  getEnv("HUB_APPLICATION_ADDR", "localhost:50050"),
-			AppBundleSecret:     getEnv("APP_BUNDLE_SECRET", "12345678901234567890123456789012"),
-			PostgresDatabaseDSN: normalizePostgresDSN(getEnv("POSTGRES_DB_DSN", "postgres://pieceouser:pieceopassword@localhost:5432/sample?sslmode=disable")),
+			AppBundleSecret:     secretEnv("APP_BUNDLE_SECRET"),
+			PostgresDatabaseDSN: normalizePostgresDSN(secretEnv("POSTGRES_DB_DSN")),
 			PostgresModels:      []any{},
 			DebugSQL:            getEnv("DEBUG_SQL", "false") == "true",
 			// Empty by default: the effective target version is auto-computed
@@ -122,4 +123,20 @@ func normalizePostgresDSN(raw string) string {
 
 	parsed.RawQuery = query.Encode()
 	return parsed.String()
+}
+
+// secretEnv reads a secret without any compiled-in fallback. An empty value is
+// accepted only in development; elsewhere the service stops, naming the
+// variable (never its value).
+func secretEnv(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		switch strings.ToLower(strings.TrimSpace(os.Getenv("ENVIRONMENT"))) {
+		case "", "dev", "development", "local", "test":
+		default:
+			fmt.Fprintf(os.Stderr, "refusing to start: required secret %s is not set\n", key)
+			os.Exit(1)
+		}
+	}
+	return value
 }
