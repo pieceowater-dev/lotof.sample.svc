@@ -25,6 +25,7 @@ func newGRPCServer(c *cfg.Config, db gossiper.Database, logger *slog.Logger, tra
 		// it behind tenantReadinessMiddleware would make it hang/retry
 		// instead of ever answering for a genuinely broken tenant.
 		"/tenants.AppTenantsService/GetTenantStatus",
+		"/tenants.AppTenantsService/GetTenantActivity",
 		"/grpc.health.v1.Health/Check",
 	}
 

@@ -12,8 +12,8 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/pieceowater-dev/lotof.hub.proto v0.0.117
-	github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.86
-	github.com/pieceowater-dev/lotof.sample.proto v0.0.18
+	github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.97
+	github.com/pieceowater-dev/lotof.sample.proto v0.0.22
 	go.opentelemetry.io/otel/trace v1.45.0
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.11
@@ -21,7 +21,7 @@ require (
 )
 
 require (
-	github.com/andybalholm/brotli v1.2.0 // indirect
+	github.com/andybalholm/brotli v1.2.7 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect

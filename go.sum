@@ -1,5 +1,5 @@
-github.com/andybalholm/brotli v1.2.0 h1:ukwgCxwYrmACq68yiUqwIWnGY0cTPox/M94sVwToPjQ=
-github.com/andybalholm/brotli v1.2.0/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
+github.com/andybalholm/brotli v1.2.7 h1:UgafRPGMam5ySHfRkhthMqOFA6IFoeF3D7mWIDLjG5A=
+github.com/andybalholm/brotli v1.2.7/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
 github.com/cenkalti/backoff/v5 v5.0.3 h1:ZN+IMa753KfX5hd8vVaMixjnqRZ3y8CuJKRKj1xcsSM=
 github.com/cenkalti/backoff/v5 v5.0.3/go.mod h1:rkhZdG3JZukswDf7f0cwqPNk4K0sa+F97BxZthm/crw=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
@@ -50,10 +50,10 @@ github.com/mattn/go-runewidth v0.0.19 h1:v++JhqYnZuu5jSKrk9RbgF5v4CGUjqRfBm05byF
 github.com/mattn/go-runewidth v0.0.19/go.mod h1:XBkDxAl56ILZc9knddidhrOlY5R/pDhgLpndooCuJAs=
 github.com/pieceowater-dev/lotof.hub.proto v0.0.117 h1:bYRxyPEYt6PgW1ngGSsuFIO+TzXUNSq5UKuJtmCm5wQ=
 github.com/pieceowater-dev/lotof.hub.proto v0.0.117/go.mod h1:rUkUaRIzk6lHWREbOzPN4Y3Q3ZDeVGyXsnmNcBs4TS4=
-github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.86 h1:DmdPK/amcZRSs9KV9u0Xm7uXlbzHmf8yoO5X33Z4Bh0=
-github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.86/go.mod h1:e5kUPW17rtP1fd5qW6D/xhcL/E7mb8EK8iDcKbcqebY=
-github.com/pieceowater-dev/lotof.sample.proto v0.0.18 h1:ibJvIHiZm20GGKhpyVvp/X97zdDxya+BTI7UF+k6HJQ=
-github.com/pieceowater-dev/lotof.sample.proto v0.0.18/go.mod h1:6D8aylFm0gbotbcMCqwP8IRMAnZDs5nOg8YM9TbiX6U=
+github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.97 h1:QsIc5E79JmvVqlSqexolCZ4cPh1JwyahwHa46RwljVA=
+github.com/pieceowater-dev/lotof.lib.gossiper/v2 v2.0.97/go.mod h1:4EtwXj8x3HSgq8F1fkpQoYbAU6nncHiUC5liPwIKxEQ=
+github.com/pieceowater-dev/lotof.sample.proto v0.0.22 h1:+aSVwakHE4KiHYDWlF1hE4Sc9yTxwStLCRKNZd8Hj1Y=
+github.com/pieceowater-dev/lotof.sample.proto v0.0.22/go.mod h1:9gyrF5aDDLBXIZvf+U23YlVQaYMUONo1JV2XehZiVw4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
